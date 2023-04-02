@@ -4,9 +4,17 @@ import { useEffect, useState } from 'react';
 
 function JobBoard() {
   const [jobs, setJobs] = useState([]);
+  const [error, setError] = useState(false)
   useEffect(() => {
     getJobs().then(setJobs)
+      .catch((err) => setError(true))
   }, []);
+
+if(error) {
+  return (
+      <h1>Sorry, something went wrong</h1>
+  )
+}
 
   console.log('[JobBoard] jobs: ', jobs)
   return (

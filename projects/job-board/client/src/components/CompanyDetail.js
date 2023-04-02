@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import { useState, useEffect } from 'react';
 import { getCompany } from './graphql/queries';
+import JobList from './JobList.js'
 
 function CompanyDetail() {
   const [company, setCompany] = useState(null);
@@ -11,12 +12,10 @@ function CompanyDetail() {
   }, [companyId]);
   console.log('[CompanyDetail] company: ', company)
 
-  if(!company) {
+  if (!company) {
     return <p>loading...</p>
   }
 
-
-  // const company = companies.find((company) => company.id === companyId);
   return (
     <div>
       <h1 className="title">
@@ -24,6 +23,11 @@ function CompanyDetail() {
       </h1>
       <div className="box">
         {company.description}
+      </div>
+      <h5 className='title is-5'>
+        Jobs at {company.name}:
+      </h5>
+      <div><JobList jobs={company.jobs} />
       </div>
     </div>
   );
