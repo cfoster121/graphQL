@@ -68,3 +68,17 @@ export async function createJob(input) {
   const {job} = await request(GRAPHQL_URL, query, variables)
   return job
 }
+
+export async function deleteJob(id) {
+  const query = gql`
+mutation DeleteJobMutation ($id: ID!) {
+  deleteJob(id: $id) {
+    id
+    title
+  }
+}`
+  const variables = {id};
+  const {job} = await request(GRAPHQL_URL, query, variables)
+  return job
+}
+
