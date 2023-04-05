@@ -1,32 +1,17 @@
-import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getAccessToken } from '../auth';
-import { CREATE_JOB_MUTATION, JOB_QUERY } from './graphql/queries';
+import { useCreateJob } from './graphql/hooks';
 
 function JobForm() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-
-  const [mutate] = useMutation(CREATE_JOB_MUTATION)
-  
+  const { createJob, loading } = useCreateJob();  
   
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const job = await createJob(title, description);
 
-    const {data: {job}} = await mutate({
-      variables: {input: { title, description}},
-      context: { headers: { 'Authorization': "Bearer " + getAccessToken() }},
-      update: (cache, {data: {job}}) => {
-        cache.writeQuery({
-          query: JOB_QUERY,
-          variables: {id: job.id},
-          data: {job}
-        })
-      }
-      }
-    )
     console.log("job created: ", job)
     navigate(`/jobs/${job.id}`)
   };
@@ -60,7 +45,7 @@ function JobForm() {
           </div>
           <div className="field">
             <div className="control">
-              <button className="button is-link" onClick={handleSubmit}>
+              <button className="button is-link" disabled={loading} onClick={handleSubmit}>
                 Submit
               </button>
             </div>
