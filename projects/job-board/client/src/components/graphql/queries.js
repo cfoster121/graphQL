@@ -20,6 +20,19 @@ fragment JobDetail on Job {
     description
 }`
 
+export const COMPANY_QUERY = gql`
+  query CompanyQuery ($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
+      jobs {
+        id
+        title
+      }
+    }
+   }`
+
 export const JOBS_QUERY = gql`
 query JobsQuery {
   jobs {
@@ -32,37 +45,13 @@ query JobsQuery {
   }
 }`
 
-export async function getCompany(id) {
-  const query = gql`
-       query CompanyQuery ($id: ID!) {
-  company(id: $id) {
-    id
-    name
-    description
-    jobs {
-      id
-      title
-    }
-  }
-   }`;
-  const variables = { id };
-  const { data: { company } } = await client.query({ query, variables });
-  return company;
-}
-
-export async function getJob(id) {
-  const query = gql`
+export const JOB_QUERY = gql`
     query JobQuery ($id: ID!) {
   job(id: $id) {
    ...JobDetail
   }
 }
-${JOB_DETAIL_FRAGMENT}`;
-  const variables = { id };
-  const { data: { job } } = await client.query({ query, variables });
-  return job;
-
-}
+${JOB_DETAIL_FRAGMENT}`
 
 export async function createJob(input) {
   const mutation = gql`
