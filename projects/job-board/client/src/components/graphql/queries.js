@@ -4,7 +4,7 @@ import { getAccessToken } from '../../auth';
 
 const GRAPHQL_URL = 'http://localhost:9000/graphql'
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   uri: GRAPHQL_URL,
   cache: new InMemoryCache(),
 })
@@ -20,8 +20,20 @@ fragment JobDetail on Job {
     description
 }`
 
+export const JOBS_QUERY = gql`
+query JobsQuery {
+  jobs {
+    id
+    title
+    company {
+      id
+      name
+    }
+  }
+}`
+
 export async function getCompany(id) {
-    const query = gql`
+  const query = gql`
        query CompanyQuery ($id: ID!) {
   company(id: $id) {
     id
@@ -33,44 +45,23 @@ export async function getCompany(id) {
     }
   }
    }`;
-   const variables = { id };
-   const {data: {company}} = await client.query({ query, variables });
-   return company;
+  const variables = { id };
+  const { data: { company } } = await client.query({ query, variables });
+  return company;
 }
 
 export async function getJob(id) {
-    const query = gql`
+  const query = gql`
     query JobQuery ($id: ID!) {
   job(id: $id) {
    ...JobDetail
   }
 }
 ${JOB_DETAIL_FRAGMENT}`;
-    const variables = { id };
-    const {data: {job}} = await client.query({ query, variables });
-    return job;
+  const variables = { id };
+  const { data: { job } } = await client.query({ query, variables });
+  return job;
 
-}
-
-export async function getJobs() {
-    const query = gql`
-    query JobsQuery {
-  jobs {
-    id
-    title
-    company {
-      id
-      name
-    }
-    description
-  }
-}
-    `;
-    const {data: {jobs}} = await client.query({ 
-      query,
-      fetchPolicy: "network-only"
-    })
-    return jobs;
 }
 
 export async function createJob(input) {
@@ -81,11 +72,11 @@ export async function createJob(input) {
   }
 }
 ${JOB_DETAIL_FRAGMENT}`;
-  const variables = {input};
+  const variables = { input };
   const context = {
-    headers : {'Authorization': "Bearer " + getAccessToken()}
+    headers: { 'Authorization': "Bearer " + getAccessToken() }
   }
-  const { data: { job }} = await client.mutate({ mutation, variables, context });
+  const { data: { job } } = await client.mutate({ mutation, variables, context });
   return job
 }
 
@@ -97,8 +88,8 @@ mutation DeleteJobMutation ($id: ID!) {
     title
   }
 }`
-  const variables = {id};
-  const {job} = await request(GRAPHQL_URL, query, variables)
+  const variables = { id };
+  const { job } = await request(GRAPHQL_URL, query, variables)
   return job
 }
 
