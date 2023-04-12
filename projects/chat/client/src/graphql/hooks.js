@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { getAccessToken } from '../auth';
-import { ADD_MESSAGE_MUTATION, MESSAGES_QUERY } from './queries';
+import { ADD_MESSAGE_MUTATION, MESSAGES_QUERY, MESSAGE_ADDED_SUBSCRIPTION } from './queries';
 
 export function useAddMessage() {
   const [mutate] = useMutation(ADD_MESSAGE_MUTATION);
@@ -23,6 +23,14 @@ export function useMessages() {
       headers: { 'Authorization': 'Bearer ' + getAccessToken() },
     },
   });
+  useSubscription(MESSAGE_ADDED_SUBSCRIPTION, {
+    onSubscriptionData: ({ client, subsciptionData }) => {
+      const message = subsciptionData.data.message;
+      client.cache.updateQuery({ query: MESSAGES_QUERY }, ({ messages }) => {
+        return {messages: [...messages, message]};
+      });
+    }
+  })
   return {
     messages: data?.messages ?? [],
   };
